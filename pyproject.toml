@@ -19,11 +19,11 @@ packages = [{ include = "json_codegen" }]
 include = ["bin/ast_to_js"]
 
 [tool.poetry.dependencies]
-python = "^3.7,<3.8"
+# python = "^3.7,<3.8"
 astor = ">=0.7.1"
 
 [tool.poetry.scripts]
-json_codegen = "json_codegen.cli.main:cli"
+json_codegen = "json_codegen.cli:main"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"
