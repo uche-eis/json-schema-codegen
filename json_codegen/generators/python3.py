@@ -92,16 +92,18 @@ class Python3Generator(SchemaParser, BaseGenerator):
         # Get compare's body
         type_ = definition.get("type")
 
+        defdefault = definition.get("default")
+
         if type_ == "integer":
-            body = ast.Num(n=definition["default"])
+            body = ast.Num(n=defdefault)
         elif type_ == "array":
-            body = ast.List(elts=[ast.Num(n=n) for n in definition["default"]])
+            body = ast.List(elts=[ast.Num(n=n) for n in defdefault])
         elif type_ == "boolean":
-            body = ast.NameConstant(value=definition["default"])
+            body = ast.NameConstant(value=defdefault)
         elif type_ == "string":
-            body = ast.Str(s=definition["default"])
+            body = ast.Str(s=defdefault)
         elif type_ == "object":
-            body = ast_from_dict(definition["default"])
+            body = ast_from_dict(defdefault or {})
         else:
             raise NotImplementedError(f"{self}: {name} => {definition}")
 
@@ -195,9 +197,9 @@ class Python3Generator(SchemaParser, BaseGenerator):
         self, key: str, property_: PropertyType, is_required: bool = False
     ) -> ast.AST:
         # Check additionalProperty
-        additional_properties = property_.get("additionalProperties")
+        additional_properties = property_.get("additionalProperties", False)
 
-        if additional_properties is not None:
+        if additional_properties:
             if "$ref" not in additional_properties:
                 raise NotImplementedError(
                     "Scalar types for additionalProperties not supported yet"
@@ -259,7 +261,7 @@ class Python3Generator(SchemaParser, BaseGenerator):
                     annotation = self.get_partial_annotation_from_definition(ref)
                 else:
                     annotation = ast.Name(id=ref["title"])
-            elif "additionalProperties" in property_:
+            elif property_.get("additionalProperties", False):
                 object_name = self.definitions[property_["additionalProperties"]["$ref"]]["title"]
 
                 annotation = ast.Subscript(
